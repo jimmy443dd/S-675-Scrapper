@@ -18,7 +18,6 @@ let scanStatus = {
   results: null,
 };
 
-// Dashboard HTML
 app.get('/', (req, res) => {
   const html = `
     <!DOCTYPE html>
@@ -30,13 +29,13 @@ app.get('/', (req, res) => {
         .container { max-width: 800px; margin: 0 auto; }
         button { padding: 10px 20px; font-size: 16px; background: #ff6b6b; color: white; border: none; cursor: pointer; }
         button:hover { background: #ff5252; }
-        .status { margin: 20px 0; padding:  20px; background: #333; border-radius: 5px; }
+        .status { margin: 20px 0; padding: 20px; background: #333; border-radius: 5px; }
         .results { margin: 20px 0; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border:  1px solid #555; padding: 10px; text-align: left; }
+        th, td { border: 1px solid #555; padding: 10px; text-align: left; }
         th { background: #444; }
         .critical { color: #ff6b6b; }
-        . high { color: #ffa500; }
+        .high { color: #ffa500; }
       </style>
     </head>
     <body>
@@ -99,11 +98,11 @@ app.get('/', (req, res) => {
           document.getElementById('resultsDiv').style.display = 'block';
           
           const emailsList = document.getElementById('emailsList');
-          emailsList.innerHTML = '<ul>' + results.extractedEmails. map(e => `<li>${e}</li>`).join('') + '</ul>';
+          emailsList.innerHTML = '<ul>' + results.extractedEmails.map(e => `<li>${e}</li>`).join('') + '</ul>';
           
           const vulnList = document.getElementById('vulnerabilitiesList');
           vulnList.innerHTML = '<table><tr><th>Type</th><th>Severity</th><th>Endpoint</th></tr>' +
-            results.findings.map(f => `<tr><td>${f.type}</td><td class="${f.severity. toLowerCase()}">${f.severity}</td><td>${f.endpoint || '-'}</td></tr>`).join('') +
+            results.findings.map(f => `<tr><td>${f.type}</td><td class="${f.severity.toLowerCase()}">${f.severity}</td><td>${f.endpoint || '-'}</td></tr>`).join('') +
             '</table>';
         }
 
@@ -117,7 +116,7 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
-// API:  Start scan
+// API: Start scan
 app.post('/scan', async (req, res) => {
   const { domain } = req.body;
 
@@ -128,11 +127,10 @@ app.post('/scan', async (req, res) => {
   scanStatus.isRunning = true;
   scanStatus.progress = 0;
 
-  // Run scan asynchronously
   (async () => {
     try {
       const tokenManager = new TokenManager();
-      scanStatus.currentTask = 'Obtaining authentication tokens... ';
+      scanStatus.currentTask = 'Obtaining authentication tokens...';
       await tokenManager.obtainTokens(domain);
 
       const scanner = new VulnerabilityScanner(domain, tokenManager);
@@ -140,12 +138,12 @@ app.post('/scan', async (req, res) => {
       const results = await scanner.runAllTests();
 
       scanStatus.results = results;
-      scanStatus. progress = 100;
+      scanStatus.progress = 100;
       scanStatus.currentTask = 'Scan complete!';
     } catch (err) {
       scanStatus.currentTask = `Error: ${err.message}`;
     } finally {
-      scanStatus. isRunning = false;
+      scanStatus.isRunning = false;
     }
   })();
 
@@ -161,7 +159,7 @@ app.get('/status', (req, res) => {
 app.get('/download-report', (req, res) => {
   const reportDir = './reports';
   const files = fs.readdirSync(reportDir).filter(f => f.endsWith('.json'));
-  const latestReport = files. sort().pop();
+  const latestReport = files.sort().pop();
 
   if (!latestReport) {
     return res.status(404).json({ error: 'No reports found' });
